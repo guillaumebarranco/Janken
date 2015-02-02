@@ -1,0 +1,33 @@
+body {
+	font-family: Monospace;
+	background-color: #f0f0f0;
+	margin: 0px;
+	overflow: hidden;
+}
+.battle {
+	width: 650px;
+	height: 500px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -250px;
+	margin-left: -400px;
+	z-index: -1;
+	text-align: center;
+}
+
+.battle h1 {
+	font-size: 60px;
+	color: red;
+}
+
+.pierre_left, .feuille_left, .ciseaux_left {
+	position: absolute;
+	left:0;
+	top:0;
+}
+.feuille_right, .pierre_right, .ciseaux_right {
+	position: absolute;
+	right:0;
+	top:0;
+}

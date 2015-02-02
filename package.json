@@ -1,11 +1,19 @@
 {
   "name": "js",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Nodejs app using socket.io to play Janken (Shifumi) with friends !!",
   "main": "jquery.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guillaumebarranco/Janken.git"
+  },
+  "bugs": {
+    "url": "https://github.com/guillaumebarranco/Janken/issues"
+  },
+  "homepage": "https://github.com/guillaumebarranco/Janken"
 }
