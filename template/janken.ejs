@@ -8,11 +8,11 @@
     </head>
 
     <body>
-        <h1>Bienvenue sur Janken <b class="welcome"><%= username %></b> !</h1>
+        <h1>Bienvenue sur Janken <b class="welcome"><%= user.username %></b> !</h1>
 
         <a href="/">Retour à l'accueil</a>
 
-        <h3>Room n°<span class="number_room"><%= room_id %></span></h3>
+        <h3>Room n°<span class="number_room"><%= user.room %></span></h3>
 
         <ul class="room_users">
             
@@ -42,13 +42,13 @@
             var deja_joue = 0;
             var score = 0;
 
-            socket.emit('roomJoined', {username: $('.welcome').text() });
+            socket.emit('roomJoined', {
+                koko : 'test'
+            });
 
-            // socket.on('displayInfos', function(socket) {
-            //     $('.room_users').append('<li>'+socket.username+'</li>');
-            //     $('.welcome').text(socket.username);
-            //     $('.number_room').append('<li>'+socket.room+'</li>');
-            // });
+            socket.on('newUser', function(user) {
+                $('.janken').append('<div>nouvel arrivant : '+user.user.username+'</div>');
+            });
 
             socket.on('janken', function(janken) {
                 exterieur = janken.janken;

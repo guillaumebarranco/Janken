@@ -10,15 +10,17 @@
 	<body>
 		<h1>Bienvenue sur Janken !</h1>
 
-		<% if(user !== 'inconnu') { %>
+		<% if(user.username !== 'inconnu') { %>
 			<section class="section_second">
 				<p>
-					Sois le bienvenue sur Janken <b class="welcome"><%= user.pseudo %></b> !
+					Sois le bienvenue sur Janken <b class="welcome"><%= user.username %></b> !
 				</p>
-				<a href="/janken">Entrez dans une session de jeu dès maintenant</a>
+				<a href="/janken" class="room" data-room="1">Room 1</a>
+				<a href="/janken" class="room" data-room="2">Room 2</a>
+				<a href="/janken" class="room" data-room="3">Room 3</a>
+
 			</section>
 		<% } else { %>
-
 			<section class="section_first">
 				<p>
 					Pour entrer dans une session de jeu, vous devez vous créer un pseudo ! <br />
@@ -28,20 +30,11 @@
 				<p class="error"></p>
 
 				<form action="" id="loginForm">
-					<input type="text" name="pseudo" class="pseudo" />
+					<input type="text" name="username" class="username" />
 					<input class="validation" type="submit" value="Entrer" />
 				</form>
 			</section>
 
-			<section class="section_second" style="display:none;">
-				<p>
-					Sois le bienvenue sur Janken <b class="welcome"></b> !
-				</p>
-				<a href="/janken" class="room" data-room="1">Room 1</a>
-				<a href="/janken" class="room" data-room="2">Room 2</a>
-				<a href="/janken" class="room" data-room="3">Room 3</a>
-
-			</section>
 		<% } %>
 
 		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -62,20 +55,15 @@
 
 				$('#loginForm').submit(function(e) {
 					e.preventDefault();
-					if($('.pseudo').val() !== '' && $('.pseudo').val() !== null && $('.pseudo').val() !== undefined) {
-
-						socket.emit('login', {
-							username : $('.pseudo').val()
+					var username = $('.username').val();
+					if($('.username').val() !== '' && username !== null && username !== undefined) {
+						$.post("http://localhost:8080/login",{username:username},function(data){
+							if(data === 'done') {
+				                window.location.href="/";
+				            }
 						});
 					}
 				});
-
-				socket.on('logged', function(user) {
-					$('.section_first').hide();
-					$('.section_second').show();
-					$('.section_second .welcome').text(user.username);
-				});
-
 				
 			});
 

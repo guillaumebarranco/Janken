@@ -1,26 +1,52 @@
 var express = require('express');
-
+var session = require('express-session');
+var bodyParser = require('body-parser');
 var app = express();
+
 app.use(express.static(__dirname + '/public'));
+app.use(session({secret: 'ssshhhhh'}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+
 
 var logged = false;
-var me;
 var rooms = ['room1','room2','room3'];
-var room_id;
 var usernames = {};
-var the_room_id;
-var the_username;
+var sess;
+
 
 app.get('/', function(req, res) {
-	if(logged == false) {
-		me = 'inconnu';
-	}
-	
-    res.render('../template/home.ejs', {user: me});
+    sess = req.session;
+    sess.username;
+
+    if(sess.username) {
+        res.render('../template/home.ejs', {user: sess});
+    } else {
+        var no_connect = {};
+        no_connect.username = "inconnu";
+        res.render('../template/home.ejs', {user: no_connect});
+    }
 });
 
 app.get('/janken', function(req, res) {
-	res.render('../template/janken.ejs', {username: the_username, room_id: the_room_id});
+    if(sess.username) {
+        res.render('../template/janken.ejs', {user: sess});
+    } else {
+        res.render('../template/home.ejs');
+    }
+});
+
+app.post('/login',function(req,res){
+    sess = req.session;
+    sess.username = req.body.username;
+    res.end('done');
+});
+
+app.post('/room',function(req,res){
+    sess = req.session;
+    sess.room = req.body.room;
+    res.end('done');
 });
 
 app.use(function(req, res, next) {
@@ -42,19 +68,13 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('joinRoom', function (room) {
-    	the_room_id = socket.room_id;
-    	the_username = socket.username;
-    	socket.room_id = room.room_id;
+    	sess.room = room.room_id;
     	//socket.join('room'+socket.room_id);
     });
 
-    socket.on('roomJoined', function (username, room_id) {
-        console.log(username);
-        socket.username = username;
-        socket.room_id = room_id;
-        
-        socket.emit('displayInfos', {username: socket.username, room: socket.room_id});
-        socket.broadcast.emit('displayInfos', {username: socket.username, room: socket.room_id});
+    socket.on('roomJoined', function (koko) {
+        socket.emit('newUser', {user: sess});
+        socket.broadcast.emit('newUser', {user: sess});
     }); 
 
     socket.on('janken', function (janken) {
