@@ -12,8 +12,16 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 var logged = false;
 var rooms = ['room1','room2','room3'];
-var usernames = {};
+var usernames = new Array();
 var sess;
+
+function requireLogin (req, res, next) {
+    if (req.session.username) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+}
 
 
 app.get('/', function(req, res) {
@@ -29,17 +37,15 @@ app.get('/', function(req, res) {
     }
 });
 
-app.get('/janken', function(req, res) {
-    if(sess.username) {
-        res.render('../template/janken.ejs', {user: sess});
-    } else {
-        res.render('../template/home.ejs');
-    }
+app.get('/janken', [requireLogin], function(req, res) {
+    sess = req.session;
+    res.render('../template/janken.ejs', {user: sess, people: usernames});
 });
 
 app.post('/login',function(req,res){
     sess = req.session;
     sess.username = req.body.username;
+    usernames.push(sess.username);
     res.end('done');
 });
 
@@ -68,8 +74,14 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('joinRoom', function (room) {
-    	sess.room = room.room_id;
-    	//socket.join('room'+socket.room_id);
+        //sess = req.session;
+        sess.room = room.room_id;
+        //socket.join('room'+socket.room_id);
+    });
+
+    socket.on('leftRoom', function (user) {
+        delete usernames[user.username];
+        socket.broadcast.emit('userLeft', {username: user.username});
     });
 
     socket.on('roomJoined', function (koko) {
