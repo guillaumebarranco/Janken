@@ -54,9 +54,13 @@
                 koko : 'test'
             });
 
+            socket.on('newUserBroadcast', function(user) {
+                $('.room_users li').append('<li>'+user.user.username+'</li>');
+            });
+
             socket.on('userLeft', function(user) {
                 $('.room_users li').each(function() {
-                    if(user.username == $('.welcome').text()) {
+                    if(user.username == $(this).text()) {
                         $(this).remove();
                     }
                 });

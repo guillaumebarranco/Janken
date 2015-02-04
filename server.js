@@ -85,8 +85,8 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('roomJoined', function (koko) {
-        socket.emit('newUser', {user: sess});
-        socket.broadcast.emit('newUser', {user: sess});
+        socket.emit('newUserEmit', {user: sess});
+        socket.broadcast.emit('newUserBroadcast', {user: sess});
     }); 
 
     socket.on('janken', function (janken) {
