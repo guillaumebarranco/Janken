@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 
 var logged = false;
-var rooms = ['room1','room2','room3'];
+var rooms = new Array();
 var usernames = new Array();
 var sess;
 
@@ -23,6 +23,12 @@ function requireLogin (req, res, next) {
     }
 }
 
+Array.prototype.unset = function(val){
+    var index = this.indexOf(val)
+    if(index > -1){
+        this.splice(index,1)
+    }
+}
 
 app.get('/', function(req, res) {
     sess = req.session;
@@ -38,8 +44,9 @@ app.get('/', function(req, res) {
 });
 
 app.get('/janken', [requireLogin], function(req, res) {
-    sess = req.session;
-    res.render('../template/janken.ejs', {user: sess, people: usernames});
+    //sess = req.session;
+    //console.log('room '+sess.room, rooms[sess.room]);
+    res.render('../template/janken.ejs', {user: sess, people: rooms[sess.room]});
 });
 
 app.post('/login',function(req,res){
@@ -73,22 +80,36 @@ io.sockets.on('connection', function (socket) {
     	socket.emit('logged', {username : socket.username});
     });
 
+    // Lorsque l'utilisateur a cliqué sur une room dans la HOME
     socket.on('joinRoom', function (room) {
-        //sess = req.session;
         sess.room = room.room_id;
-        //socket.join('room'+socket.room_id);
+        if(!rooms[sess.room]) {
+            rooms[sess.room] = new Array();
+        }
+        rooms[sess.room].push(sess.username);
     });
 
+    // Lorsque l'utilisateur quitte une room
     socket.on('leftRoom', function (user) {
-        delete usernames[user.username];
+        console.log('user',user);
+        console.log('before delete', rooms[sess.room]);
+        rooms[sess.room].unset(sess.username);
+        // if(rooms[sess.room][sess.username]) {
+        //     rooms[sess.room].unset(sess.username);
+        // }
+        console.log('after delete', rooms[sess.room]);
+        socket.leave('room'+sess.room);
         socket.broadcast.emit('userLeft', {username: user.username});
     });
 
-    socket.on('roomJoined', function (koko) {
+    // Lorsqu'un utilisateur a rejoint une room
+    socket.on('roomJoined', function () {
         socket.emit('newUserEmit', {user: sess});
-        socket.broadcast.emit('newUserBroadcast', {user: sess});
+        socket.join('room'+sess.room);
+        socket.broadcast.to('room'+sess.room).emit('newUserBroadcast', {user: sess});
     }); 
 
+    // Lorsque le pierre feuille ciseaux démarre
     socket.on('janken', function (janken) {
         //janken = ent.encode(janken);
         socket.broadcast.emit('janken', {janken: janken});

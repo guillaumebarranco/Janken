@@ -20,7 +20,7 @@
             <% } %>
         </ul>
 
-        <ul>
+        <ul class="janken_buttons">
             <li><button>Pierre</button></button></li>
             <li><button>Feuille</button></button></li>
             <li><button>Ciseaux</button></button></li>
@@ -44,20 +44,22 @@
             var deja_joue = 0;
             var score = 0;
 
+            // Lorsqu'on retourne à la home, on envoie un message au server pour dire qu'on quitte la room
             $('.return_home').on('click',function(){
                 socket.emit('leftRoom', {
                     username : $('.welcome').text()
                 });
             });
 
-            socket.emit('roomJoined', {
-                koko : 'test'
-            });
+            // On envoie un message au serveur pour dire qu'on a rejoint la room
+            socket.emit('roomJoined');
 
+            // Lors de l'arrivée d'un nouveau user, on ajoute son nom à la liste
             socket.on('newUserBroadcast', function(user) {
                 $('.room_users li').append('<li>'+user.user.username+'</li>');
             });
 
+            // Lorsqu'un user quitte la room, on le retire de la liste
             socket.on('userLeft', function(user) {
                 $('.room_users li').each(function() {
                     if(user.username == $(this).text()) {
@@ -66,6 +68,14 @@
                 });
             });
 
+
+
+
+            /*
+            *   PARTIE JANKEN
+            */
+
+            // Lorsque le combat s'enclenche
             socket.on('janken', function(janken) {
                 exterieur = janken.janken;
 
@@ -118,7 +128,6 @@
                         battle('feuille_left', 'feuille_right', 2);
                     }
                 }
-                
             }
 
             function battle(left, right, result) {
@@ -178,9 +187,7 @@
                 }, 1500);
             }
 
-
         </script>
         
     </body>
 </html>
-
