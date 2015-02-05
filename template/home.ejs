@@ -84,7 +84,7 @@
 				$('.roomForm').on('click', function() {
 					var room_id = $(this).find('input[type=hidden]').val();
 
-					$.post("http://localhost:8080/joinRoom",{room_id:room_id},function(data){
+					$.post(app_url+"/joinRoom",{room_id:room_id},function(data){
 						if(data === 'done') {
 			                document.location = "/janken";
 			            }
@@ -95,7 +95,7 @@
 					e.preventDefault();
 					var username = $('.username').val();
 					if($('.username').val() !== '' && username !== null && username !== undefined) {
-						$.post("http://localhost:8080/login",{username:username},function(data){
+						$.post(app_url+"/login",{username:username},function(data){
 							if(data === 'done') {
 				                window.location.href="/";
 				            }

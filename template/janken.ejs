@@ -71,7 +71,7 @@
             $('.leftRoomForm').on('click', function() {
                 var room_id = $(this).find('input[type=hidden]').val();
 
-                $.post("http://localhost:8080/leftRoom",{room_id:room_id},function(data){
+                $.post(app_url+"/leftRoom",{room_id:room_id},function(data){
                     if(data === 'done') {
                         document.location="/";
                     }
