@@ -81,7 +81,8 @@
 
 			$(document).ready(function() {
 
-				$('.roomForm').on('click', function() {
+				$('.roomForm').on('submit', function(e) {
+					e.preventDefault();
 					var room_id = $(this).find('input[type=hidden]').val();
 
 					$.post(app_url+"/joinRoom",{room_id:room_id},function(data){

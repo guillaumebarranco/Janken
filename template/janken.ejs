@@ -68,7 +68,8 @@
             var score = 0;
 
             // Lorsqu'on retourne à la home, on envoie un message au server pour dire qu'on quitte la room
-            $('.leftRoomForm').on('click', function() {
+            $('.leftRoomForm').on('submit', function(e) {
+                e.preventDefault();
                 var room_id = $(this).find('input[type=hidden]').val();
 
                 $.post(app_url+"/leftRoom",{room_id:room_id},function(data){
