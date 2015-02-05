@@ -4,13 +4,36 @@
     <head>
         <meta charset="UTF-8" />
         <title>Janken : Battle !</title>
-        <link rel="stylesheet" href="/styles.css" />
+        <link rel="stylesheet" href="css/screen.css" />
+        <link rel="stylesheet" href="css/styles.css" />
+        <link rel="stylesheet" href="css/fonts.css" />
+        <link rel="stylesheet" href="css/flaticon.css" />
     </head>
 
     <body>
+        <header>
+            <ul class="menu">
+                <li class="logo">
+                    <span>Flat Janken</span>
+                </li>
+                <li class="user">
+                    <div class="flaticon-user127"> <%= user.username %></div>
+                </li>
+                <li class="room">
+                    <div class="flaticon-fivepointed4"> Room <%=user.room %></div>
+                </li>
+                <li class="all_users">
+                    <div class="flaticon-group60"> <a href="#">Voir tous les utilisateurs</a></div>
+                </li>
+            </ul>
+        </header>
+
         <h1>Bienvenue sur Janken <b class="welcome"><%= user.username %></b> !</h1>
 
-        <a class="return_home" href="/">Retour à l'accueil</a>
+        <form action="" class="leftRoomForm">
+            <input type="hidden" value="<%=user.room%>" />
+            <input type="submit"class="room" value="Quitter la room n°<%=user.room%>" />
+        </form>
 
         <h3>Room n°<span class="number_room"><%= user.room %></span></h3>
 
@@ -33,7 +56,7 @@
 
         <div class="battle"></div>
 
-        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/connect_io.js"></script>
 
@@ -45,9 +68,13 @@
             var score = 0;
 
             // Lorsqu'on retourne à la home, on envoie un message au server pour dire qu'on quitte la room
-            $('.return_home').on('click',function(){
-                socket.emit('leftRoom', {
-                    username : $('.welcome').text()
+            $('.leftRoomForm').on('click', function() {
+                var room_id = $(this).find('input[type=hidden]').val();
+
+                $.post("http://localhost:8080/leftRoom",{room_id:room_id},function(data){
+                    if(data === 'done') {
+                        document.location="/";
+                    }
                 });
             });
 

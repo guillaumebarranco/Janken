@@ -4,20 +4,52 @@
 	<head>
 		<meta charset="UTF-8" />
         <title>Janken : Home</title>
-        <link rel="stylesheet" href="/styles.css" />
+        <link rel="stylesheet" href="css/screen.css" />
+        <link rel="stylesheet" href="css/styles.css" />
+        <link rel="stylesheet" href="css/fonts.css" />
+        <link rel="stylesheet" href="css/flaticon.css" />
 	</head>
 
 	<body>
-		<h1>Bienvenue sur Janken !</h1>
+		<header>
+			<ul class="menu">
+				<li class="logo">
+					<span>Flat Janken</span>
+				</li>
+				<li class="user">
+					<div class="flaticon-user127"> <%= user.username %></div>
+				</li>
+				<li class="room">
+					<div class="flaticon-fivepointed4">Sur la Home</div>
+				</li>
+				<li class="all_users">
+					<div class="flaticon-group60"> <a href="#">Voir tous les utilisateurs</a></div>
+				</li>
+			</ul>
+		</header>
+		<h1>Bienvenue sur Flat Janken !</h1>
 
 		<% if(user.username !== 'inconnu') { %>
 			<section class="section_second">
 				<p>
-					Sois le bienvenue sur Janken <b class="welcome"><%= user.username %></b> !
+					Sois le bienvenue sur Janken <b class="welcome"><%= user.username %></b> ! <br />
+					Tu peux sans plus attendre choisir une session de jeu !
 				</p>
-				<a href="/janken" class="room" data-room="1">Room 1</a>
-				<a href="/janken" class="room" data-room="2">Room 2</a>
-				<a href="/janken" class="room" data-room="3">Room 3</a>
+				<form action="" class="roomForm">
+					<input type="hidden" value="1" />
+					<input type="submit"class="room" value="Room1" />
+				</form>
+				<!--<% //if(rooms[room1]) alert(rooms[room1]) %>-->
+
+				<form action="" class="roomForm">
+					<input type="hidden" value="2" />
+					<input type="submit"class="room" value="Room2" />
+				</form>
+
+				<form action="" class="roomForm">
+					<input type="hidden" value="3" />
+					<input type="submit"class="room" value="Room3" />
+				</form>
 
 			</section>
 		<% } else { %>
@@ -31,13 +63,17 @@
 
 				<form action="" id="loginForm">
 					<input type="text" name="username" class="username" />
-					<input class="validation" type="submit" value="Entrer" />
+					<input class="validation button-submit" type="submit" value="Entrer" />
 				</form>
 			</section>
 
 		<% } %>
 
-		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<footer>
+			<div class="copyright">@Webarranco</div>
+		</footer>
+
+		<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
         <script src="/connect_io.js"></script>
 
@@ -45,11 +81,13 @@
 
 			$(document).ready(function() {
 
-				$('.room').on('click', function() {
-					var data_id = $(this).attr('data-room');
+				$('.roomForm').on('click', function() {
+					var room_id = $(this).find('input[type=hidden]').val();
 
-					socket.emit('joinRoom', {
-						room_id : data_id
+					$.post("http://localhost:8080/joinRoom",{room_id:room_id},function(data){
+						if(data === 'done') {
+			                document.location = "/janken";
+			            }
 					});
 				});
 

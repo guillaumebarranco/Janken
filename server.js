@@ -3,18 +3,6 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var app = express();
 
-app.use(express.static(__dirname + '/public'));
-app.use(session({secret: 'ssshhhhh'}));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-
-
-
-var logged = false;
-var rooms = new Array();
-var usernames = new Array();
-var sess;
-
 function requireLogin (req, res, next) {
     if (req.session.username) {
         next();
@@ -30,12 +18,32 @@ Array.prototype.unset = function(val){
     }
 }
 
+var logged = false;
+var rooms = new Array();
+var usernames = new Array();
+var sess;
+
+app.use(express.static(__dirname + '/public'));
+app.use(session({
+    secret: 'ssshhhhh',
+    resave: true,
+    saveUninitialized: true
+}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(function (req, res, next) {
+  sess = req.session;
+  next();
+});
+
+
 app.get('/', function(req, res) {
-    sess = req.session;
     sess.username;
+    sess.room;
 
     if(sess.username) {
-        res.render('../template/home.ejs', {user: sess});
+        res.render('../template/home.ejs', {user: sess, rooms: rooms});
     } else {
         var no_connect = {};
         no_connect.username = "inconnu";
@@ -44,21 +52,29 @@ app.get('/', function(req, res) {
 });
 
 app.get('/janken', [requireLogin], function(req, res) {
-    //sess = req.session;
-    //console.log('room '+sess.room, rooms[sess.room]);
-    res.render('../template/janken.ejs', {user: sess, people: rooms[sess.room]});
+    res.render('../template/janken.ejs', {
+        user: sess, 
+        people: rooms[sess.room]
+    });
 });
 
-app.post('/login',function(req,res){
-    sess = req.session;
+app.post('/login', function(req,res){
     sess.username = req.body.username;
     usernames.push(sess.username);
     res.end('done');
 });
 
-app.post('/room',function(req,res){
-    sess = req.session;
-    sess.room = req.body.room;
+app.post('/joinRoom',function(req,res){
+    sess.room = req.body.room_id;
+    if(!rooms[sess.room]) {
+        rooms[sess.room] = new Array();
+    }
+    rooms[sess.room].push(sess.username);
+    res.end('done');
+});
+
+app.post('/leftRoom',function(req,res){
+    rooms[req.body.room_id].unset(sess.username);
     res.end('done');
 });
 
@@ -68,38 +84,26 @@ app.use(function(req, res, next) {
 
 var server = app.listen(8080);
 
+/*
+*   SOCKET IO
+*/
+
 var io = require('socket.io').listen(server);
 
-// Quand on client se connecte, on le note dans la console
 io.sockets.on('connection', function (socket) {
 
     socket.on('login', function (user) {
-    	socket.username = user.username;
     	logged = true;
-    	usernames[socket.username] = socket.username;
-    	socket.emit('logged', {username : socket.username});
-    });
-
-    // Lorsque l'utilisateur a cliqué sur une room dans la HOME
-    socket.on('joinRoom', function (room) {
-        sess.room = room.room_id;
-        if(!rooms[sess.room]) {
-            rooms[sess.room] = new Array();
-        }
-        rooms[sess.room].push(sess.username);
+    	usernames[sess.username] = sess.username;
+    	socket.emit('logged', {username : sess.username});
+        socket.close();
     });
 
     // Lorsque l'utilisateur quitte une room
     socket.on('leftRoom', function (user) {
-        console.log('user',user);
-        console.log('before delete', rooms[sess.room]);
-        rooms[sess.room].unset(sess.username);
-        // if(rooms[sess.room][sess.username]) {
-        //     rooms[sess.room].unset(sess.username);
-        // }
-        console.log('after delete', rooms[sess.room]);
         socket.leave('room'+sess.room);
         socket.broadcast.emit('userLeft', {username: user.username});
+        socket.close();
     });
 
     // Lorsqu'un utilisateur a rejoint une room
@@ -111,8 +115,7 @@ io.sockets.on('connection', function (socket) {
 
     // Lorsque le pierre feuille ciseaux démarre
     socket.on('janken', function (janken) {
-        //janken = ent.encode(janken);
         socket.broadcast.emit('janken', {janken: janken});
-    }); 
+    });
 
 });
