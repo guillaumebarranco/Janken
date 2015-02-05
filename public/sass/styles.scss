@@ -1,0 +1,70 @@
+body {
+	margin: 0px;
+	overflow: hidden;
+}
+
+header {
+	height: 50px;
+	background-color: black;
+	position: fixed;
+	width: 100%;
+	.menu {
+		border-sizing: border-box;
+		padding: 7px;
+
+		li {
+			display: inline-block;
+			vertical-align: top;
+			width: 250px;
+
+			&.all_users {
+				a {
+					text-decoration: underline;
+
+					&:hover {
+						text-decoration: none;
+					}
+				}
+			}
+		}
+	}
+}
+
+.roomForm {
+	margin-top: 20px;
+}
+
+.janken_buttons {
+	li {
+		display: inline-block;
+		margin-left: 15px;
+	}
+}
+
+.battle {
+	width: 650px;
+	height: 500px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -250px;
+	margin-left: -400px;
+	z-index: -1;
+	text-align: center;
+
+	h1 {
+		font-size: 60px;
+		color: red;
+	}
+}
+
+.pierre_left, .feuille_left, .ciseaux_left {
+	position: absolute;
+	left:0;
+	top:0;
+}
+.feuille_right, .pierre_right, .ciseaux_right {
+	position: absolute;
+	right:0;
+	top:0;
+}
