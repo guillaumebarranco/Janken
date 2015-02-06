@@ -3,6 +3,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var app = express();
 
+// Fonction pour vérifier qu'un utilisateur est loggé pour le rediriger
 function requireLogin (req, res, next) {
     if (req.session.username) {
         next();
@@ -11,6 +12,7 @@ function requireLogin (req, res, next) {
     }
 }
 
+// Fonction pour vider une entrée d'un tableau tout en la supprimant réellement
 Array.prototype.unset = function(val){
     var index = this.indexOf(val)
     if(index > -1){
@@ -18,10 +20,14 @@ Array.prototype.unset = function(val){
     }
 }
 
+// Variables gloables
+
 var logged = false;
 var rooms = new Array();
 var usernames = new Array();
 var sess;
+
+// Gestion de l'application avec Express
 
 app.use(express.static(__dirname + '/public'));
 app.use(session({
@@ -37,6 +43,11 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(function(req, res, next) {
+    res.status('Content-Type', 'text/plain').send(404, 'Page introuvable !');
+});
+
+// Gestion des URL de l'application
 
 app.get('/', function(req, res) {
     sess.username;
@@ -58,6 +69,8 @@ app.get('/janken', [requireLogin], function(req, res) {
     });
 });
 
+// Récupération des données par formulaires
+
 app.post('/login', function(req,res){
     sess.username = req.body.username;
     usernames.push(sess.username);
@@ -78,9 +91,7 @@ app.post('/leftRoom',function(req,res){
     res.end('done');
 });
 
-app.use(function(req, res, next) {
-    res.status('Content-Type', 'text/plain').send(404, 'Page introuvable !');
-});
+// Démarrage du serveur
 
 var server = app.listen(8080);
 
@@ -92,6 +103,7 @@ var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
 
+    // Lorsque l'utilisateur rentre un username
     socket.on('login', function (user) {
     	logged = true;
     	usernames[sess.username] = sess.username;
@@ -115,7 +127,7 @@ io.sockets.on('connection', function (socket) {
 
     // Lorsque le pierre feuille ciseaux démarre
     socket.on('janken', function (janken) {
-        socket.broadcast.emit('janken', {janken: janken});
+        socket.broadcast.to('room'+sess.room).emit('janken', {janken: janken});
     });
 
 });
