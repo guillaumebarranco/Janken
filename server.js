@@ -115,7 +115,7 @@ io.sockets.on('connection', function (socket) {
 
     // Lorsque le pierre feuille ciseaux démarre
     socket.on('janken', function (janken) {
-        socket.broadcast.emit('janken', {janken: janken});
+        socket.broadcast.to('room'+sess.room).emit('janken', {janken: janken});
     });
 
 });
