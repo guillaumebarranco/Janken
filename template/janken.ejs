@@ -32,7 +32,7 @@
 
         <form action="" class="leftRoomForm">
             <input type="hidden" value="<%=user.room%>" />
-            <input type="submit"class="room" value="Quitter la room n°<%=user.room%>" />
+            <input type="submit" class="room" value="Quitter la room n°<%=user.room%>" />
         </form>
 
         <h3>Room n°<span class="number_room"><%= user.room %></span></h3>
@@ -71,6 +71,12 @@
             $('.leftRoomForm').on('submit', function(e) {
                 e.preventDefault();
                 var room_id = $(this).find('input[type=hidden]').val();
+                var username = $('.welcome').text();
+
+                socket.emit('leftRoom', {
+                    username: username, 
+                    room_id : room_id
+                });
 
                 $.post(app_url+"/leftRoom",{room_id:room_id},function(data){
                     if(data === 'done') {
@@ -207,6 +213,7 @@
 
                     setTimeout(function() {
                         $('.battle').empty();
+                        $('.janken').empty();
                         $('.score').text(score);
                         domicile = '';
                         exterieur = '';

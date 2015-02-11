@@ -30,30 +30,25 @@
 		<h1>Bienvenue sur Flat Janken !</h1>
 
 		<% if(user.username !== 'inconnu') { %>
+
 			<section class="section_second">
 				<p>
 					Sois le bienvenue sur Janken <b class="welcome"><%= user.username %></b> ! <br />
 					Tu peux sans plus attendre choisir une session de jeu !
 				</p>
-				<form action="" class="roomForm">
-					<input type="hidden" value="1" />
-					<input type="submit"class="room" value="Room1" />
-				</form>
-				<!--<% //if(rooms[room1]) alert(rooms[room1]) %>-->
 
-				<form action="" class="roomForm">
-					<input type="hidden" value="2" />
-					<input type="submit"class="room" value="Room2" />
-				</form>
-
-				<form action="" class="roomForm">
-					<input type="hidden" value="3" />
-					<input type="submit"class="room" value="Room3" />
-				</form>
+				<% for (var r = 1; r < 4; r++) { %>
+				    <form action="" class="roomForm"><span class="info_room_<%=r%>"><%= rooms[r].length %></span> / 2
+						<input type="hidden" value="<%=r%>" />
+						<input type="submit"class="room" value="Room <%=r%>" />
+					</form>
+				<% } %>
 
 			</section>
+
 		<% } else { %>
 			<section class="section_first">
+
 				<p>
 					Pour entrer dans une session de jeu, vous devez vous créer un pseudo ! <br />
 					Ecrivez votre pseudo puis jouez avec vos amis !
@@ -81,16 +76,29 @@
 
 			$(document).ready(function() {
 
-				$('.roomForm').on('submit', function(e) {
+				$(document).on('submit', '.roomForm', function(e) {
 					e.preventDefault();
 					var room_id = $(this).find('input[type=hidden]').val();
 
 					$.post(app_url+"/joinRoom",{room_id:room_id},function(data){
-						if(data === 'done') {
+						if(data === 'OK') {
+							socket.emit('joinRoom', {room_id: room_id});
 			                document.location = "/janken";
+			            } else if(data === 'KO') {
+			            	alert('déjà trop de personnes dans cette room');
 			            }
 					});
 				});
+
+				socket.on('infoRoom', function(room) {
+					var number_in_room = parseInt($('.info_room_'+room.room_id).text()) + 1;
+	                $('.info_room_'+room.room_id).text(number_in_room);
+	            });
+
+	            socket.on('infoLeftRoom', function(room) {
+					var number_in_room = parseInt($('.info_room_'+room.room_id).text()) - 1;
+	                $('.info_room_'+room.room_id).text(number_in_room);
+	            });
 
 				$('#loginForm').submit(function(e) {
 					e.preventDefault();
