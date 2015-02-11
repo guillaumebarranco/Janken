@@ -90,11 +90,16 @@
 
             // Lors de l'arrivée d'un nouveau user, on ajoute son nom à la liste
             socket.on('newUserBroadcast', function(user) {
-                $('.room_users li').append('<li>'+user.user.username+'</li>');
+                $('.room_users').append('<li>'+user.user.username+'</li>');
             });
 
             // Lorsqu'un user quitte la room, on le retire de la liste
             socket.on('userLeft', function(user) {
+                domicile = '';
+                exterieur = '';
+                $('.janken').empty();
+                $('.janken').append('<p>L\'adversaire est parti, en attente d\'un adversaire</p>');
+
                 $('.room_users li').each(function() {
                     if(user.username == $(this).text()) {
                         $(this).remove();
@@ -122,18 +127,25 @@
                 }
             });
 
-            $('ul li button').click(function () {
-                $('.janken').empty();
-                socket.emit('janken', $(this).text());
-                domicile = $(this).text();
+            $('ul li button').click(function() {
 
-                $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
-                deja_joue = 1;
+                if($('.room_users li').length > 1) {
+                    $('.janken').empty();
 
-                if(exterieur !== '') { // Lorsqu'on joue, si l'adversaire a déjà joué
-                    $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
-                    calculScore(domicile, exterieur);
+                    socket.emit('janken', {play: $(this).text(), room_id : $('.number_room').text() });
+                    domicile = $(this).text();
+
+                    $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
+                    deja_joue = 1;
+
+                    if(exterieur !== '') { // Lorsqu'on joue, si l'adversaire a déjà joué
+                        $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
+                        calculScore(domicile, exterieur);
+                    }
+                } else {
+                    $('.janken').append('<p>Attendez d\'avoir un adversaire pour commencer à jouer.</p>');
                 }
+
             });
 
             function calculScore(first, second) {
