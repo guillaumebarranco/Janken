@@ -22,7 +22,6 @@ Array.prototype.unset = function(val){
 
 // Variables gloables
 
-var logged = false;
 var rooms = new Array();
 var usernames = new Array();
 var sess;
@@ -105,7 +104,6 @@ io.sockets.on('connection', function (socket) {
 
     // Lorsque l'utilisateur rentre un username
     socket.on('login', function (user) {
-    	logged = true;
     	usernames[sess.username] = sess.username;
     	socket.emit('logged', {username : sess.username});
         socket.close();

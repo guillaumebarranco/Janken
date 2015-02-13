@@ -81,6 +81,7 @@
 
 			$(document).ready(function() {
 
+				// Au clic sur sur une Room
 				$('.roomForm').on('submit', function(e) {
 					e.preventDefault();
 					var room_id = $(this).find('input[type=hidden]').val();
@@ -92,17 +93,19 @@
 					});
 				});
 
-				$('#loginForm').submit(function(e) {
+				// Lors du renseignement du pseudo
+				$('#loginForm').on('submit', function(e) {
 					e.preventDefault();
 					var username = $('.username').val();
 					if($('.username').val() !== '' && username !== null && username !== undefined) {
 						$.post(app_url+"/login",{username:username},function(data){
 							if(data === 'done') {
-				                window.location.href="/";
+				                document.location="/";
 				            }
 						});
 					}
 				});
+				
 			});
 
 		</script>
