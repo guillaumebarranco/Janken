@@ -136,7 +136,11 @@ io.sockets.on('connection', function (socket) {
         socket.emit('newUserEmit', {user: sess});
         socket.join('room'+sess.room);
         socket.broadcast.to('room'+sess.room).emit('newUserBroadcast', {user: sess});
-    }); 
+    });
+
+    socket.on('changeColor', function (infos) {
+        socket.broadcast.to('room'+infos.room_id).emit('changeColorBroadcast', {color: infos.color});
+    });
 
     // Lorsque le pierre feuille ciseaux démarre
     socket.on('janken', function (janken) {

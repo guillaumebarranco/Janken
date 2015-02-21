@@ -1,25 +1,39 @@
+$blue : #436e91;
+
 body {
 	margin: 0px;
 	overflow: hidden;
 }
 
+.logo {
+	position: absolute;
+	z-index: 13;
+	top: 5px;
+	left: 5px;
+}
+
 header {
-	height: 50px;
-	background-color: black;
+	height: 100px;
+	background-color: $blue;
 	position: fixed;
 	width: 100%;
+
 	.menu {
 		border-sizing: border-box;
 		padding: 7px;
+		padding-left: 100px;
 
 		li {
 			display: inline-block;
 			vertical-align: top;
 			width: 250px;
+			color: white;
+			padding: 0;
 
 			&.all_users {
 				a {
 					text-decoration: underline;
+					color: white;
 
 					&:hover {
 						text-decoration: none;
@@ -58,13 +72,60 @@ header {
 	}
 }
 
-.pierre_left, .feuille_left, .ciseaux_left {
+.left {
 	position: absolute;
 	left:0;
 	top:0;
+
+	img {
+		position: absolute;
+		top: -36px;
+		left: 80px;
+	}
+	.block_rect {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 80px;
+		height: 215px;
+	}
+
+	.circle_center {
+		position: absolute;
+		border-radius: 100px;
+		left: 91px;
+		top: 123px;
+		width: 36px;
+		height: 36px;
+		z-index: 2;
+	}
 }
-.feuille_right, .pierre_right, .ciseaux_right {
+
+.right {
 	position: absolute;
 	right:0;
 	top:0;
+
+	img {
+		position: absolute;
+		top: -36px;
+		right: 80px;
+	}
+	.block_rect {
+		position: absolute;
+		right: 0;
+		top: 0;
+		width: 80px;
+		height: 215px;
+	}
+
+	.circle_center {
+		position: absolute;
+		border-radius: 100px;
+		right: 91px;
+		top: 123px;
+		width: 36px;
+		height: 36px;
+		z-index: 2;
+	}
 }

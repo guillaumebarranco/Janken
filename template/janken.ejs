@@ -11,11 +11,12 @@
     </head>
 
     <body>
+        <div class="logo">
+            <img src="logo.png" width="100" />
+        </div>
+
         <header>
             <ul class="menu">
-                <li class="logo">
-                    <span>Flat Janken</span>
-                </li>
                 <li class="user">
                     <div class="flaticon-user127"> <%= user.username %></div>
                 </li>
@@ -43,6 +44,13 @@
             <% } %>
         </ul>
 
+        <select name="choose_color" class="choose_color">
+            <option value="red">Rouge</option>
+            <option value="blue">Bleu</option>
+            <option value="yellow">Jaune</option>
+            <option value="black">Noir</option>
+        </select>
+
         <ul class="janken_buttons">
             <li><button>Pierre</button></button></li>
             <li><button>Feuille</button></button></li>
@@ -66,6 +74,8 @@
             var exterieur = '';
             var deja_joue = 0;
             var score = 0;
+            var color_domicile = 'red';
+            var color_exterieur = 'red';
 
             // Lorsqu'on retourne à la home, on envoie un message au server pour dire qu'on quitte la room
             $('.leftRoomForm').on('submit', function(e) {
@@ -106,6 +116,22 @@
                     }
                 });
             });
+
+
+            $('.choose_color').on('change', function() {
+                var room_id = $('.number_room').text();
+                color_domicile = $(this).val();
+
+                socket.emit('changeColor', {
+                    color: color_domicile, 
+                    room_id : room_id
+                });
+            });
+
+            socket.on('changeColorBroadcast', function(color) {
+                color_exterieur = color.color;
+            });
+
 
 
             /*
@@ -177,10 +203,14 @@
             function battle(left, right, result) {
 
                 var battle =
-                    '<div class="'+left+'">' +
+                    '<div class="'+left+' left">' +
+                        '<div class="block_rect" style="background-color:'+color_domicile+'"></div>'+
+                        '<div class="circle_center" style="background-color:'+color_domicile+'"></div>'+
                         '<img src="/'+left+'.png" width="300" />' +
                     '</div>' +
-                    '<div class="'+right+'">' +
+                    '<div class="'+right+' right">' +
+                        '<div class="block_rect" style="background-color:'+color_exterieur+'"></div>'+
+                        '<div class="circle_center" style="background-color:'+color_exterieur+'"></div>'+
                         '<img src="/'+right+'.png" width="300" />' +
                     '</div>'
                 ;
