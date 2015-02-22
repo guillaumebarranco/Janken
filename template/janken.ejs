@@ -12,7 +12,7 @@
 
     <body>
         <div class="logo">
-            <img src="logo.png" width="100" />
+            <img src="img/logo.png" width="100" />
         </div>
 
         <header>
@@ -29,40 +29,44 @@
             </ul>
         </header>
 
-        <h1>Bienvenue sur Janken <b class="welcome"><%= user.username %></b> !</h1>
+        <div class="container">
+            <h1>Bienvenue sur Janken <b class="welcome"><%= user.username %></b> !</h1>
 
-        <form action="" class="leftRoomForm">
-            <input type="hidden" value="<%=user.room%>" />
-            <input type="submit" class="room" value="Quitter la room n°<%=user.room%>" />
-        </form>
+            <form action="" class="leftRoomForm">
+                <input type="hidden" value="<%=user.room%>" />
+                <input type="submit" class="room" value="Quitter la room n°<%=user.room%>" />
+            </form>
 
-        <h3>Room n°<span class="number_room"><%= user.room %></span></h3>
+            <h3>Room n°<span class="number_room"><%= user.room %></span></h3>
 
-        <ul class="room_users">
-            <% for(var i = 0; i < people.length; i++) { %>
-                <li><%= people[i] %></li>
-            <% } %>
-        </ul>
+            <ul class="room_users">
+                <% for(var i = 0; i < people.length; i++) { %>
+                    <li><%= people[i] %></li>
+                <% } %>
+            </ul>
 
-        <select name="choose_color" class="choose_color">
-            <option value="red">Rouge</option>
-            <option value="blue">Bleu</option>
-            <option value="yellow">Jaune</option>
-            <option value="black">Noir</option>
-        </select>
+            <select name="choose_color" class="choose_color">
+                <option value="red">Rouge</option>
+                <option value="blue">Bleu</option>
+                <option value="yellow">Jaune</option>
+                <option value="black">Noir</option>
+            </select>
 
-        <ul class="janken_buttons">
-            <li><button>Pierre</button></button></li>
-            <li><button>Feuille</button></button></li>
-            <li><button>Ciseaux</button></button></li>
-        </ul>
+            <ul class="janken_buttons">
+                <li><button>Pierre</button></li>
+                <li><button>Feuille</button></li>
+                <li><button>Ciseaux</button></li>
+            </ul>
 
-        <div class="janken"></div>
+            <div class="janken"></div>
 
-        <br />
-        <div>Votre score est de : <span class="score">0</span></div>
+            <br />
+            <div>Votre score est de : <span class="score">0</span></div>
 
-        <div class="battle"></div>
+            <div class="battle"></div>
+        </div>
+
+        
 
         <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
@@ -206,12 +210,12 @@
                     '<div class="'+left+' left">' +
                         '<div class="block_rect" style="background-color:'+color_domicile+'"></div>'+
                         '<div class="circle_center" style="background-color:'+color_domicile+'"></div>'+
-                        '<img src="/'+left+'.png" width="300" />' +
+                        '<img src="/img/'+left+'.png" width="300" />' +
                     '</div>' +
                     '<div class="'+right+' right">' +
                         '<div class="block_rect" style="background-color:'+color_exterieur+'"></div>'+
                         '<div class="circle_center" style="background-color:'+color_exterieur+'"></div>'+
-                        '<img src="/'+right+'.png" width="300" />' +
+                        '<img src="/img/'+right+'.png" width="300" />' +
                     '</div>'
                 ;
 

@@ -13,19 +13,23 @@ body {
 }
 
 /* line 15, ../sass/styles.scss */
+.container {
+  margin-top: 70px;
+}
+
+/* line 19, ../sass/styles.scss */
 header {
-  height: 100px;
+  height: 50px;
   background-color: #436e91;
-  position: fixed;
   width: 100%;
 }
-/* line 21, ../sass/styles.scss */
+/* line 24, ../sass/styles.scss */
 header .menu {
   border-sizing: border-box;
   padding: 7px;
   padding-left: 100px;
 }
-/* line 26, ../sass/styles.scss */
+/* line 29, ../sass/styles.scss */
 header .menu li {
   display: inline-block;
   vertical-align: top;
@@ -33,28 +37,28 @@ header .menu li {
   color: white;
   padding: 0;
 }
-/* line 34, ../sass/styles.scss */
+/* line 37, ../sass/styles.scss */
 header .menu li.all_users a {
   text-decoration: underline;
   color: white;
 }
-/* line 38, ../sass/styles.scss */
+/* line 41, ../sass/styles.scss */
 header .menu li.all_users a:hover {
   text-decoration: none;
 }
 
-/* line 47, ../sass/styles.scss */
+/* line 50, ../sass/styles.scss */
 .roomForm {
   margin-top: 20px;
 }
 
-/* line 52, ../sass/styles.scss */
+/* line 55, ../sass/styles.scss */
 .janken_buttons li {
   display: inline-block;
   margin-left: 15px;
 }
 
-/* line 58, ../sass/styles.scss */
+/* line 61, ../sass/styles.scss */
 .battle {
   width: 650px;
   height: 500px;
@@ -66,25 +70,25 @@ header .menu li.all_users a:hover {
   z-index: -1;
   text-align: center;
 }
-/* line 69, ../sass/styles.scss */
+/* line 72, ../sass/styles.scss */
 .battle h1 {
   font-size: 60px;
   color: red;
 }
 
-/* line 75, ../sass/styles.scss */
+/* line 78, ../sass/styles.scss */
 .left {
   position: absolute;
   left: 0;
   top: 0;
 }
-/* line 80, ../sass/styles.scss */
+/* line 83, ../sass/styles.scss */
 .left img {
   position: absolute;
   top: -36px;
   left: 80px;
 }
-/* line 85, ../sass/styles.scss */
+/* line 88, ../sass/styles.scss */
 .left .block_rect {
   position: absolute;
   left: 0;
@@ -92,30 +96,30 @@ header .menu li.all_users a:hover {
   width: 80px;
   height: 215px;
 }
-/* line 93, ../sass/styles.scss */
+/* line 96, ../sass/styles.scss */
 .left .circle_center {
   position: absolute;
   border-radius: 100px;
-  left: 91px;
-  top: 123px;
-  width: 36px;
-  height: 36px;
+  left: 87px;
+  top: 130px;
+  width: 31px;
+  height: 31px;
   z-index: 2;
 }
 
-/* line 104, ../sass/styles.scss */
+/* line 107, ../sass/styles.scss */
 .right {
   position: absolute;
   right: 0;
   top: 0;
 }
-/* line 109, ../sass/styles.scss */
+/* line 112, ../sass/styles.scss */
 .right img {
   position: absolute;
   top: -36px;
   right: 80px;
 }
-/* line 114, ../sass/styles.scss */
+/* line 117, ../sass/styles.scss */
 .right .block_rect {
   position: absolute;
   right: 0;
@@ -123,13 +127,13 @@ header .menu li.all_users a:hover {
   width: 80px;
   height: 215px;
 }
-/* line 122, ../sass/styles.scss */
+/* line 125, ../sass/styles.scss */
 .right .circle_center {
   position: absolute;
   border-radius: 100px;
-  right: 91px;
-  top: 123px;
-  width: 36px;
-  height: 36px;
+  right: 87px;
+  top: 130px;
+  width: 31px;
+  height: 31px;
   z-index: 2;
 }

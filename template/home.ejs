@@ -8,11 +8,12 @@
         <link rel="stylesheet" href="/css/styles.css" />
         <link rel="stylesheet" href="/css/fonts.css" />
         <link rel="stylesheet" href="/css/flaticon.css" />
+        <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
 	</head>
 
 	<body>
 		<div class="logo">
-			<img src="logo.png" width="100" />
+			<img src="/img/logo.png" width="100" />
 		</div>
 
 		<header>
@@ -28,43 +29,45 @@
 				</li>
 			</ul>
 		</header>
-		
-		<h1>Bienvenue sur Flat Janken !</h1>
 
-		<% if(user.username !== 'inconnu') { %>
+		<div class="container">
+			<h1>Bienvenue sur Flat Janken !</h1>
 
-			<section class="section_second">
-				<p>
-					Sois le bienvenue sur Janken <b class="welcome"><%= user.username %></b> ! <br />
-					Tu peux sans plus attendre choisir une session de jeu !
-				</p>
+			<% if(user.username !== 'inconnu') { %>
 
-				<% for (var r = 1; r < 4; r++) { %>
-				    <form action="" class="roomForm"><span class="info_room_<%=r%>"><%= rooms[r].length %></span> / 2
-						<input type="hidden" value="<%=r%>" />
-						<input type="submit"class="room" value="Room <%=r%>" />
+				<section class="section_second">
+					<p>
+						Sois le bienvenue sur Janken <b class="welcome"><%= user.username %></b> ! <br />
+						Tu peux sans plus attendre choisir une session de jeu !
+					</p>
+
+					<% for (var r = 1; r < 4; r++) { %>
+					    <form action="" class="roomForm"><span class="info_room_<%=r%>"><%= rooms[r].length %></span> / 2
+							<input type="hidden" value="<%=r%>" />
+							<input type="submit"class="room" value="Room <%=r%>" />
+						</form>
+					<% } %>
+
+				</section>
+
+			<% } else { %>
+				<section class="section_first">
+
+					<p>
+						Pour entrer dans une session de jeu, vous devez vous créer un pseudo ! <br />
+						Ecrivez votre pseudo puis jouez avec vos amis !
+					</p>
+
+					<p class="error"></p>
+
+					<form action="" id="loginForm">
+						<input type="text" name="username" class="username" />
+						<input class="validation button-submit" type="submit" value="Entrer" />
 					</form>
-				<% } %>
+				</section>
 
-			</section>
-
-		<% } else { %>
-			<section class="section_first">
-
-				<p>
-					Pour entrer dans une session de jeu, vous devez vous créer un pseudo ! <br />
-					Ecrivez votre pseudo puis jouez avec vos amis !
-				</p>
-
-				<p class="error"></p>
-
-				<form action="" id="loginForm">
-					<input type="text" name="username" class="username" />
-					<input class="validation button-submit" type="submit" value="Entrer" />
-				</form>
-			</section>
-
-		<% } %>
+			<% } %>
+		</div>
 
 		<footer>
 			<div class="copyright">@Webarranco</div>

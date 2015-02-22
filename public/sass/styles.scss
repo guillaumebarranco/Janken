@@ -12,10 +12,13 @@ body {
 	left: 5px;
 }
 
+.container {
+	margin-top: 70px;
+}
+
 header {
-	height: 100px;
+	height: 50px;
 	background-color: $blue;
-	position: fixed;
 	width: 100%;
 
 	.menu {
@@ -93,10 +96,10 @@ header {
 	.circle_center {
 		position: absolute;
 		border-radius: 100px;
-		left: 91px;
-		top: 123px;
-		width: 36px;
-		height: 36px;
+		left: 87px;
+		top: 130px;
+		width: 31px;
+		height: 31px;
 		z-index: 2;
 	}
 }
@@ -122,10 +125,10 @@ header {
 	.circle_center {
 		position: absolute;
 		border-radius: 100px;
-		right: 91px;
-		top: 123px;
-		width: 36px;
-		height: 36px;
+		right: 87px;
+		top: 130px;
+		width: 31px;
+		height: 31px;
 		z-index: 2;
 	}
 }
