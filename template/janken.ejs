@@ -220,6 +220,7 @@
                 ;
 
                 $('.battle').append(battle);
+                $('.battle').css('z-index', '200');
 
                 $('.'+left).animate({
                     left: "+=100",
@@ -257,6 +258,7 @@
 
                     setTimeout(function() {
                         $('.battle').empty();
+                        $('.battle').css('z-index', '-1');
                         $('.janken').empty();
                         $('.score').text(score);
                         domicile = '';

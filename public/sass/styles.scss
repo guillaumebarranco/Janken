@@ -55,6 +55,7 @@ header {
 	li {
 		display: inline-block;
 		margin-left: 15px;
+		z-index: 5;
 	}
 }
 
@@ -79,9 +80,10 @@ header {
 	position: absolute;
 	left:0;
 	top:0;
+	z-index: 5;
 
 	img {
-		position: absolute;
+		position: relative;
 		top: -36px;
 		left: 80px;
 	}
@@ -108,9 +110,10 @@ header {
 	position: absolute;
 	right:0;
 	top:0;
+	z-index: 5;
 
 	img {
-		position: absolute;
+		position: relative;
 		top: -36px;
 		right: 80px;
 	}
