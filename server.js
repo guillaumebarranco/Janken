@@ -43,6 +43,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(function (req, res, next) {
   sess = req.session;
+  req.session.cookie.expires = false;
   next();
 });
 
@@ -60,14 +61,12 @@ app.get('/', function(req, res) {
         sess.room = undefined;
     }
 
-    console.log(sess.room);
-
     if(sess.username) {
-        res.render('../template/home.ejs', {user: sess, rooms: rooms});
+        res.render('../template/home.ejs', {user: sess, rooms: rooms, usernames: usernames});
     } else {
         var no_connect = {};
         no_connect.username = "inconnu";
-        res.render('../template/home.ejs', {user: no_connect});
+        res.render('../template/home.ejs', {user: no_connect, usernames: usernames});
     }
 });
 
@@ -84,6 +83,12 @@ app.get('/janken', [requireLogin], function(req, res) {
 app.post('/login', function(req,res){
     sess.username = req.body.username;
     usernames.push(sess.username);
+    res.end('done');
+});
+
+app.post('/quitGame', function(req,res){
+    usernames.unset(sess.username);
+    req.session = null;
     res.end('done');
 });
 
@@ -123,37 +128,43 @@ var io = require('socket.io').listen(server);
 io.sockets.on('connection', function (socket) {
 
     // Lorsque l'utilisateur rentre un username
-    socket.on('login', function (user) {
-        logged = true;
-        usernames[sess.username] = sess.username;
-        socket.emit('logged', {username : sess.username});
-        //socket.destroy();
+    socket.on('I_login', function () {
+        socket.broadcast.emit('logged', {username : sess.username});
     });
 
-    socket.on('joinRoom', function (room) {
+    socket.on('I_leaveGame', function (user) {
+        /*if(sess.room != undefined) {
+            socket.leave('room'+sess.room);
+            socket.broadcast.to('room'+sess.room).emit('userLeft', {username: user.username});
+        }*/
+        
+        socket.broadcast.emit('userLeaveGame', {username : user.username});
+    });
+
+    socket.on('I_joinRoom', function (room) {
         socket.broadcast.emit('infoRoom', {room_id : room.room_id});
     });
 
     // Lorsque l'utilisateur quitte une room
-    socket.on('leftRoom', function (user) {
+    socket.on('I_leftRoom', function (user) {
         socket.leave('room'+sess.room);
         socket.broadcast.to('room'+sess.room).emit('userLeft', {username: user.username});
         socket.broadcast.emit('infoLeftRoom', {room_id : user.room_id});
     });
 
     // Lorsqu'un utilisateur a rejoint une room
-    socket.on('roomJoined', function () {
+    socket.on('I_roomJoined', function () {
         socket.emit('newUserEmit', {user: sess});
         socket.join('room'+sess.room);
         socket.broadcast.to('room'+sess.room).emit('newUserBroadcast', {user: sess});
     });
 
-    socket.on('changeColor', function (infos) {
+    socket.on('I_changeColor', function (infos) {
         socket.broadcast.to('room'+infos.room_id).emit('changeColorBroadcast', {color: infos.color});
     });
 
     // Lorsque le pierre feuille ciseaux démarre
-    socket.on('janken', function (janken) {
+    socket.on('I_janken', function (janken) {
         socket.broadcast.to('room'+janken.room_id).emit('janken', {janken: janken.play});
     });
 

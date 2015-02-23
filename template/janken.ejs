@@ -26,6 +26,12 @@
                 <li class="all_users">
                     <div class="flaticon-group60"> <a href="#">Voir tous les utilisateurs</a></div>
                 </li>
+
+                <li class="all_users">
+                    <form action="" class="QuitForm">
+                        <input type="submit" value="Quit" />
+                    </form>
+                </li>
             </ul>
         </header>
 
@@ -80,6 +86,7 @@
             var score = 0;
             var color_domicile = 'red';
             var color_exterieur = 'red';
+            var playing = false;
 
             // Lorsqu'on retourne à la home, on envoie un message au server pour dire qu'on quitte la room
             $('.leftRoomForm').on('submit', function(e) {
@@ -87,7 +94,7 @@
                 var room_id = $(this).find('input[type=hidden]').val();
                 var username = $('.welcome').text();
 
-                socket.emit('leftRoom', {
+                socket.emit('I_leftRoom', {
                     username: username, 
                     room_id : room_id
                 });
@@ -99,12 +106,15 @@
                 });
             });
 
-            window.onpopstate = function(event) {
-                alert('ok');
-            };
+            $(document).on('submit', '.QuitForm', function(e) {
+
+                e.preventDefault();
+                $.post(app_url+"/quitGame",function(data){
+                });
+            });
 
             // On envoie un message au serveur pour dire qu'on a rejoint la room
-            socket.emit('roomJoined');
+            socket.emit('I_roomJoined');
 
             // Lors de l'arrivée d'un nouveau user, on ajoute son nom à la liste
             socket.on('newUserBroadcast', function(user) {
@@ -130,7 +140,7 @@
                 var room_id = $('.number_room').text();
                 color_domicile = $(this).val();
 
-                socket.emit('changeColor', {
+                socket.emit('I_changeColor', {
                     color: color_domicile, 
                     room_id : room_id
                 });
@@ -148,67 +158,76 @@
 
             // Lorsque le combat s'enclenche
             socket.on('janken', function(janken) {
-                exterieur = janken.janken;
+                if(playing == false) {
+                    exterieur = janken.janken;
 
-                if(domicile !== '') { // Lorsque l'adversaire a joué, si on a déjà joué
-                    if(deja_joue === 0) {
-                        $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
+                    if(domicile !== '') { // Lorsque l'adversaire a joué, si on a déjà joué
+                        
+                        if(deja_joue === 0) {
+                            $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
+                        }
+                        $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
+                        calculScore(domicile, exterieur);
                     }
-                    $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
-                    calculScore(domicile, exterieur);
                 }
             });
 
             $('ul li button').click(function() {
+                if(playing == false) {
 
-                if($('.room_users li').length > 1) {
-                    $('.janken').empty();
+                    if($('.room_users li').length > 1) {
+                        $('.janken').empty();
 
-                    socket.emit('janken', {play: $(this).text(), room_id : $('.number_room').text() });
-                    domicile = $(this).text();
+                        socket.emit('I_janken', {play: $(this).text(), room_id : $('.number_room').text() });
+                        domicile = $(this).text();
 
-                    $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
-                    deja_joue = 1;
+                            $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
+                            deja_joue = 1;
 
-                    if(exterieur !== '') { // Lorsqu'on joue, si l'adversaire a déjà joué
-                        $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
-                        calculScore(domicile, exterieur);
+                            if(exterieur !== '') { // Lorsqu'on joue, si l'adversaire a déjà joué
+                                $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
+                                calculScore(domicile, exterieur);
+                            }
+                    } else {
+                        $('.janken').append('<p>Attendez d\'avoir un adversaire pour commencer à jouer.</p>');
                     }
-                } else {
-                    $('.janken').append('<p>Attendez d\'avoir un adversaire pour commencer à jouer.</p>');
                 }
 
             });
 
             function calculScore(first, second) {
-                if(first === 'Ciseaux') {
-                    if(second === 'Pierre') {
-                        battle('ciseaux_left', 'pierre_right', 0);
-                    } else if(second === 'Feuille') {
-                        battle('ciseaux_left', 'feuille_right', 1);
-                    } else if(second === 'Ciseaux') {
-                        battle('ciseaux_left', 'ciseaux_right', 2);
-                    }
-                } else if(first === 'Pierre') {
-                    if(second === 'Feuille') {
-                        battle('pierre_left', 'feuille_right', 0);
-                    } else if(second === 'Ciseaux') {
-                        battle('pierre_left', 'ciseaux_right', 1);
-                    } else if(second === 'Pierre') {
-                        battle('pierre_left', 'pierre_right', 2);
-                    }
-                } else if(first === 'Feuille') {
-                    if(second === 'Ciseaux') {
-                        battle('feuille_left', 'ciseaux_right', 0);
-                    } else if(second === 'Pierre') {
-                        battle('feuille_left', 'pierre_right', 1);
-                    } else if(second === 'Feuille') {
-                        battle('feuille_left', 'feuille_right', 2);
+                if(playing == false) {
+                    if(first === 'Ciseaux') {
+                        if(second === 'Pierre') {
+                            battle('ciseaux_left', 'pierre_right', 0);
+                        } else if(second === 'Feuille') {
+                            battle('ciseaux_left', 'feuille_right', 1);
+                        } else if(second === 'Ciseaux') {
+                            battle('ciseaux_left', 'ciseaux_right', 2);
+                        }
+                    } else if(first === 'Pierre') {
+                        if(second === 'Feuille') {
+                            battle('pierre_left', 'feuille_right', 0);
+                        } else if(second === 'Ciseaux') {
+                            battle('pierre_left', 'ciseaux_right', 1);
+                        } else if(second === 'Pierre') {
+                            battle('pierre_left', 'pierre_right', 2);
+                        }
+                    } else if(first === 'Feuille') {
+                        if(second === 'Ciseaux') {
+                            battle('feuille_left', 'ciseaux_right', 0);
+                        } else if(second === 'Pierre') {
+                            battle('feuille_left', 'pierre_right', 1);
+                        } else if(second === 'Feuille') {
+                            battle('feuille_left', 'feuille_right', 2);
+                        }
                     }
                 }
             }
 
             function battle(left, right, result) {
+
+                playing = true;
 
                 var battle =
                     '<div class="'+left+' left">' +
@@ -261,6 +280,7 @@
                     }
 
                     setTimeout(function() {
+                        playing = false;
                         $('.battle').empty();
                         $('.battle').css('z-index', '-1');
                         $('.janken').empty();

@@ -25,8 +25,21 @@
 					<div class="flaticon-fivepointed4">Sur la Home</div>
 				</li>
 				<li class="all_users">
-					<div class="flaticon-group60"> <a href="#">Voir tous les utilisateurs</a></div>
+					<div class="flaticon-group60"><a href="#">Voir tous les utilisateurs</a></div>
+					<ul style='background: black; padding: 5px;'>
+						<% for (var u = 0; u < usernames.length; u++) { %>
+							<li><%= usernames[u] %></li>
+						<% } %>
+					</ul>
 				</li>
+				<% if(user.username !== 'inconnu') { %>
+					<li class="all_users">
+	                    <form action="" class="QuitForm">
+	                    	<input type="hidden" value="<%= user.username %>"/>
+							<input type="submit" value="Quit" />
+						</form>
+	                </li>
+	            <% } %>
 			</ul>
 		</header>
 
@@ -89,11 +102,36 @@
 
 					$.post(app_url+"/joinRoom",{room_id:room_id},function(data){
 						if(data === 'OK') {
-							socket.emit('joinRoom', {room_id: room_id});
+							socket.emit('I_joinRoom', {room_id: room_id});
 			                document.location = "/janken";
 			            } else if(data === 'KO') {
 			            	alert('déjà trop de personnes dans cette room');
 			            }
+					});
+				});
+
+				socket.on('logged', function(user) {
+					$('.all_users ul').append('<li>'+user.username+'</li>');
+	            });
+
+	            socket.on('userLeaveGame', function(user) {
+	            	alert(user.username);
+	            	$('.all_users ul li').each(function() {
+	                    if(user.username == $(this).text()) {
+	                        $(this).remove();
+	                    }
+	                });
+	            });
+
+				$(document).on('submit', '.QuitForm', function(e) {
+					var username = $(this).find('input[type=hidden]').val();
+					e.preventDefault();
+
+					$.post(app_url+"/quitGame",function(data){
+						socket.emit('I_leaveGame', {username: username});
+						setTimeout(function() {
+			            	document.location="/";
+			            }, 400);
 					});
 				});
 
@@ -113,10 +151,28 @@
 					if($('.username').val() !== '' && username !== null && username !== undefined) {
 						$.post(app_url+"/login",{username:username},function(data){
 							if(data === 'done') {
-				                document.location="/";
+								socket.emit('I_login');
+					            setTimeout(function() {
+					            	document.location="/";
+					            }, 400);
 				            }
 						});
 					}
+				});
+
+				$('.all_users').find('ul').hide();
+
+				$('.all_users a').on('click', function(e) {
+					e.preventDefault();
+					var ul = $(this).parent().parent().find('ul');
+
+					if(ul.css('display') == 'none') {
+						ul.slideDown();
+					} else {
+						ul.slideUp();
+					}
+
+					
 				});
 				
 			});
