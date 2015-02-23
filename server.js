@@ -51,8 +51,16 @@ app.use(function (req, res, next) {
 // Gestion des URL de l'application
 
 app.get('/', function(req, res) {
+    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     sess.username;
     sess.room;
+
+    if(sess.room != undefined) {
+        rooms[sess.room].unset(sess.username);
+        sess.room = undefined;
+    }
+
+    console.log(sess.room);
 
     if(sess.username) {
         res.render('../template/home.ejs', {user: sess, rooms: rooms});
@@ -64,6 +72,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/janken', [requireLogin], function(req, res) {
+    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.render('../template/janken.ejs', {
         user: sess, 
         people: rooms[sess.room]
@@ -93,6 +102,7 @@ app.post('/joinRoom',function(req,res){
 
 app.post('/leftRoom',function(req,res){
     rooms[req.body.room_id].unset(sess.username);
+    sess.room = undefined;
     res.end('done');
 });
 

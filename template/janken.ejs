@@ -99,6 +99,10 @@
                 });
             });
 
+            window.onpopstate = function(event) {
+                alert('ok');
+            };
+
             // On envoie un message au serveur pour dire qu'on a rejoint la room
             socket.emit('roomJoined');
 
