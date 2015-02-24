@@ -93,8 +93,30 @@
 		<script>
 
 			$(document).ready(function() {
+				var my_username = $('.welcome').text();
 
-				// Au clic sur sur une Room
+				$('.all_users').find('ul').hide();
+
+				// Check pour vérifier si le user est toujours connecté à une room ou non
+				socket.emit('I_onHome', {username: my_username});
+
+				// Connexion
+				$('#loginForm').submit(function(e) {
+					e.preventDefault();
+					var username = $('.username').val();
+					if($('.username').val() !== '' && username !== null && username !== undefined) {
+						$.post(app_url+"/login",{username:username},function(data){
+							if(data === 'done') {
+								socket.emit('I_login', {username:username});
+					            setTimeout(function() {
+					            	document.location="/";
+					            }, 400);
+				            }
+						});
+					}
+				});
+
+				// Lorsque le user rejoint une room
 				$(document).on('submit', '.roomForm', function(e) {
 
 					e.preventDefault();
@@ -110,10 +132,12 @@
 					});
 				});
 
+				// Lorsqu'un nouveau user apparait, on l'ajoute à la liste
 				socket.on('logged', function(user) {
 					$('.all_users ul').append('<li>'+user.username+'</li>');
 	            });
 
+				// Lorsqu'un utilisateur se déconnecte, on le supprime de la liste
 	            socket.on('userLeaveGame', function(user) {
 	            	alert(user.username);
 	            	$('.all_users ul li').each(function() {
@@ -123,6 +147,7 @@
 	                });
 	            });
 
+	            // Formulaire de déconnexion
 				$(document).on('submit', '.QuitForm', function(e) {
 					var username = $(this).find('input[type=hidden]').val();
 					e.preventDefault();
@@ -135,32 +160,15 @@
 					});
 				});
 
+				// Mise à jour des rooms en temps réel
 				socket.on('infoRoom', function(room) {
 					var number_in_room = parseInt($('.info_room_'+room.room_id).text()) + 1;
 	                $('.info_room_'+room.room_id).text(number_in_room);
 	            });
-
 	            socket.on('infoLeftRoom', function(room) {
 					var number_in_room = parseInt($('.info_room_'+room.room_id).text()) - 1;
 	                $('.info_room_'+room.room_id).text(number_in_room);
 	            });
-
-				$('#loginForm').submit(function(e) {
-					e.preventDefault();
-					var username = $('.username').val();
-					if($('.username').val() !== '' && username !== null && username !== undefined) {
-						$.post(app_url+"/login",{username:username},function(data){
-							if(data === 'done') {
-								socket.emit('I_login');
-					            setTimeout(function() {
-					            	document.location="/";
-					            }, 400);
-				            }
-						});
-					}
-				});
-
-				$('.all_users').find('ul').hide();
 
 				$('.all_users a').on('click', function(e) {
 					e.preventDefault();
@@ -171,8 +179,6 @@
 					} else {
 						ul.slideUp();
 					}
-
-					
 				});
 				
 			});

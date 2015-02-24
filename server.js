@@ -131,9 +131,9 @@ var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
 
-    // Lorsque l'utilisateur rentre un username
-    socket.on('I_login', function () {
-        socket.broadcast.emit('logged', {username : sess.username});
+    // Lorsque l'utilisateur rentre un username, on prévient les autres utilisateurs
+    socket.on('I_login', function (user) {
+        socket.broadcast.emit('logged', {username : user.username});
     });
 
     socket.on('I_leaveGame', function (user) {
@@ -154,6 +154,14 @@ io.sockets.on('connection', function (socket) {
         socket.leave('room'+sess.room);
         socket.broadcast.to('room'+sess.room).emit('userLeft', {username: user.username});
         socket.broadcast.emit('infoLeftRoom', {room_id : user.room_id});
+    });
+
+    socket.on('I_onHome', function (user) {
+        if(sess.room != undefined) {
+            socket.leave('room'+sess.room);
+            socket.broadcast.to('room'+sess.room).emit('userLeft', {username: user.username});
+            socket.broadcast.emit('infoLeftRoom', {room_id : sess.room});
+        }
     });
 
     // Lorsqu'un utilisateur a rejoint une room

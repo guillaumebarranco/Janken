@@ -80,217 +80,223 @@
 
 
         <script>
-            var domicile = '';
-            var exterieur = '';
-            var deja_joue = 0;
-            var score = 0;
-            var color_domicile = 'red';
-            var color_exterieur = 'red';
-            var playing = false;
+            $(document).ready(function() {
+                
+                var domicile = '';
+                var exterieur = '';
+                var deja_joue = 0;
+                var score = 0;
+                var color_domicile = 'red';
+                var color_exterieur = 'red';
+                var playing = false;
+                var new_Battle;
 
-            // Lorsqu'on retourne à la home, on envoie un message au server pour dire qu'on quitte la room
-            $('.leftRoomForm').on('submit', function(e) {
-                e.preventDefault();
-                var room_id = $(this).find('input[type=hidden]').val();
-                var username = $('.welcome').text();
+                // Lorsqu'on retourne à la home, on envoie un message au server pour dire qu'on quitte la room
+                $('.leftRoomForm').on('submit', function(e) {
+                    e.preventDefault();
+                    var room_id = $(this).find('input[type=hidden]').val();
+                    var username = $('.welcome').text();
 
-                socket.emit('I_leftRoom', {
-                    username: username, 
-                    room_id : room_id
-                });
+                    socket.emit('I_leftRoom', {
+                        username: username, 
+                        room_id : room_id
+                    });
 
-                $.post(app_url+"/leftRoom",{room_id:room_id},function(data){
-                    if(data === 'done') {
-                        document.location="/";
-                    }
-                });
-            });
-
-            $(document).on('submit', '.QuitForm', function(e) {
-
-                e.preventDefault();
-                $.post(app_url+"/quitGame",function(data){
-                });
-            });
-
-            // On envoie un message au serveur pour dire qu'on a rejoint la room
-            socket.emit('I_roomJoined');
-
-            // Lors de l'arrivée d'un nouveau user, on ajoute son nom à la liste
-            socket.on('newUserBroadcast', function(user) {
-                $('.room_users').append('<li>'+user.user.username+'</li>');
-            });
-
-            // Lorsqu'un user quitte la room, on le retire de la liste
-            socket.on('userLeft', function(user) {
-                domicile = '';
-                exterieur = '';
-                $('.janken').empty();
-                $('.janken').append('<p>L\'adversaire est parti, en attente d\'un adversaire</p>');
-
-                $('.room_users li').each(function() {
-                    if(user.username == $(this).text()) {
-                        $(this).remove();
-                    }
-                });
-            });
-
-
-            $('.choose_color').on('change', function() {
-                var room_id = $('.number_room').text();
-                color_domicile = $(this).val();
-
-                socket.emit('I_changeColor', {
-                    color: color_domicile, 
-                    room_id : room_id
-                });
-            });
-
-            socket.on('changeColorBroadcast', function(color) {
-                color_exterieur = color.color;
-            });
-
-
-
-            /*
-            *   PARTIE JANKEN
-            */
-
-            // Lorsque le combat s'enclenche
-            socket.on('janken', function(janken) {
-                if(playing == false) {
-                    exterieur = janken.janken;
-
-                    if(domicile !== '') { // Lorsque l'adversaire a joué, si on a déjà joué
-                        
-                        if(deja_joue === 0) {
-                            $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
+                    $.post(app_url+"/leftRoom",{room_id:room_id},function(data){
+                        if(data === 'done') {
+                            document.location="/";
                         }
-                        $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
-                        calculScore(domicile, exterieur);
-                    }
-                }
-            });
+                    });
+                });
 
-            $('ul li button').click(function() {
-                if(playing == false) {
+                // Déconnexion
+                $(document).on('submit', '.QuitForm', function(e) {
 
-                    if($('.room_users li').length > 1) {
-                        $('.janken').empty();
+                    e.preventDefault();
+                    $.post(app_url+"/quitGame",function(data){
+                    });
+                });
 
-                        socket.emit('I_janken', {play: $(this).text(), room_id : $('.number_room').text() });
-                        domicile = $(this).text();
+                // On envoie un message au serveur pour dire qu'on a rejoint la room
+                socket.emit('I_roomJoined');
 
-                            $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
-                            deja_joue = 1;
+                // Lors de l'arrivée d'un nouveau user, on ajoute son nom à la liste
+                socket.on('newUserBroadcast', function(user) {
+                    $('.room_users').append('<li>'+user.user.username+'</li>');
+                });
 
-                            if(exterieur !== '') { // Lorsqu'on joue, si l'adversaire a déjà joué
-                                $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
-                                calculScore(domicile, exterieur);
+                // Lorsqu'un user quitte la room, on le retire de la liste
+                socket.on('userLeft', function(user) {
+                    domicile = '';
+                    exterieur = '';
+                    $('.janken').empty();
+                    $('.janken').append('<p>L\'adversaire est parti, en attente d\'un adversaire</p>');
+
+                    $('.room_users li').each(function() {
+                        if(user.username == $(this).text()) {
+                            $(this).remove();
+                        }
+                    });
+                });
+
+                // Lorsqu'on choisit sa couleur, on envoie un message au serveur pour prévenir l'adversaire
+                $('.choose_color').on('change', function() {
+                    var room_id = $('.number_room').text();
+                    color_domicile = $(this).val();
+
+                    socket.emit('I_changeColor', {
+                        color: color_domicile, 
+                        room_id : room_id
+                    });
+                });
+
+                // Lorsque l'adversaire change sa couleur
+                socket.on('changeColorBroadcast', function(color) {
+                    color_exterieur = color.color;
+                });
+
+
+                /*
+                *   PARTIE JANKEN
+                */
+
+                // Lorsque le combat s'enclenche
+                socket.on('janken', function(janken) {
+                    if(playing == false) {
+                        exterieur = janken.janken;
+
+                        if(domicile !== '') { // Lorsque l'adversaire a joué, si on a déjà joué
+                            
+                            if(deja_joue === 0) {
+                                $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
                             }
-                    } else {
-                        $('.janken').append('<p>Attendez d\'avoir un adversaire pour commencer à jouer.</p>');
+                            $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
+                            calculScore(domicile, exterieur);
+                        }
+                    }
+                });
+
+                // Au clic sur un des boutons de jeu
+                $('ul li button').click(function() {
+                    if(playing == false) {
+
+                        if($('.room_users li').length > 1) {
+                            $('.janken').empty();
+
+                            socket.emit('I_janken', {play: $(this).text(), room_id : $('.number_room').text() });
+                            domicile = $(this).text();
+
+                                $('.janken').append('<p>Vous avez joué <b>'+domicile+'</b></p>');
+                                deja_joue = 1;
+
+                                if(exterieur !== '') { // Lorsqu'on joue, si l'adversaire a déjà joué
+                                    $('.janken').append('<p>Votre adversaire a joué <b>'+exterieur+'</b></p>');
+                                    calculScore(domicile, exterieur);
+                                }
+                        } else {
+                            $('.janken').append('<p>Attendez d\'avoir un adversaire pour commencer à jouer.</p>');
+                        }
+                    }
+
+                });
+
+                function calculScore(first, second) {
+                    if(playing == false) {
+                        if(first === 'Ciseaux') {
+                            if(second === 'Pierre') {
+                                battle('ciseaux_left', 'pierre_right', 0);
+                            } else if(second === 'Feuille') {
+                                battle('ciseaux_left', 'feuille_right', 1);
+                            } else if(second === 'Ciseaux') {
+                                battle('ciseaux_left', 'ciseaux_right', 2);
+                            }
+                        } else if(first === 'Pierre') {
+                            if(second === 'Feuille') {
+                                battle('pierre_left', 'feuille_right', 0);
+                            } else if(second === 'Ciseaux') {
+                                battle('pierre_left', 'ciseaux_right', 1);
+                            } else if(second === 'Pierre') {
+                                battle('pierre_left', 'pierre_right', 2);
+                            }
+                        } else if(first === 'Feuille') {
+                            if(second === 'Ciseaux') {
+                                battle('feuille_left', 'ciseaux_right', 0);
+                            } else if(second === 'Pierre') {
+                                battle('feuille_left', 'pierre_right', 1);
+                            } else if(second === 'Feuille') {
+                                battle('feuille_left', 'feuille_right', 2);
+                            }
+                        }
                     }
                 }
 
-            });
+                function battle(left, right, result) {
 
-            function calculScore(first, second) {
-                if(playing == false) {
-                    if(first === 'Ciseaux') {
-                        if(second === 'Pierre') {
-                            battle('ciseaux_left', 'pierre_right', 0);
-                        } else if(second === 'Feuille') {
-                            battle('ciseaux_left', 'feuille_right', 1);
-                        } else if(second === 'Ciseaux') {
-                            battle('ciseaux_left', 'ciseaux_right', 2);
-                        }
-                    } else if(first === 'Pierre') {
-                        if(second === 'Feuille') {
-                            battle('pierre_left', 'feuille_right', 0);
-                        } else if(second === 'Ciseaux') {
-                            battle('pierre_left', 'ciseaux_right', 1);
-                        } else if(second === 'Pierre') {
-                            battle('pierre_left', 'pierre_right', 2);
-                        }
-                    } else if(first === 'Feuille') {
-                        if(second === 'Ciseaux') {
-                            battle('feuille_left', 'ciseaux_right', 0);
-                        } else if(second === 'Pierre') {
-                            battle('feuille_left', 'pierre_right', 1);
-                        } else if(second === 'Feuille') {
-                            battle('feuille_left', 'feuille_right', 2);
-                        }
-                    }
-                }
-            }
+                    playing = true;
 
-            function battle(left, right, result) {
+                    new_Battle =
+                        '<div class="'+left+' left">' +
+                            '<div class="block_rect" style="background-color:'+color_domicile+'"></div>'+
+                            '<div class="circle_center" style="background-color:'+color_domicile+'"></div>'+
+                            '<img src="/img/'+left+'.png" width="300" />' +
+                        '</div>' +
+                        '<div class="'+right+' right">' +
+                            '<div class="block_rect" style="background-color:'+color_exterieur+'"></div>'+
+                            '<div class="circle_center" style="background-color:'+color_exterieur+'"></div>'+
+                            '<img src="/img/'+right+'.png" width="300" />' +
+                        '</div>'
+                    ;
 
-                playing = true;
+                    $('.battle').append(new_Battle);
+                    $('.battle').css('z-index', '200');
 
-                var battle =
-                    '<div class="'+left+' left">' +
-                        '<div class="block_rect" style="background-color:'+color_domicile+'"></div>'+
-                        '<div class="circle_center" style="background-color:'+color_domicile+'"></div>'+
-                        '<img src="/img/'+left+'.png" width="300" />' +
-                    '</div>' +
-                    '<div class="'+right+' right">' +
-                        '<div class="block_rect" style="background-color:'+color_exterieur+'"></div>'+
-                        '<div class="circle_center" style="background-color:'+color_exterieur+'"></div>'+
-                        '<img src="/img/'+right+'.png" width="300" />' +
-                    '</div>'
-                ;
-
-                $('.battle').append(battle);
-                $('.battle').css('z-index', '200');
-
-                $('.'+left).animate({
-                    left: "+=100",
-                  }, 550, function() {
                     $('.'+left).animate({
-                        left: "-=100",
-                      }, 150, function() {
+                        left: "+=100",
+                      }, 550, function() {
+                        $('.'+left).animate({
+                            left: "-=100",
+                          }, 150, function() {
+                        });
                     });
-                });
 
-                $('.'+right).animate({
-                    right: "+=100",
-                  }, 550, function() {
                     $('.'+right).animate({
-                        right: "-=100",
-                      }, 150, function() {
+                        right: "+=100",
+                      }, 550, function() {
+                        $('.'+right).animate({
+                            right: "-=100",
+                          }, 150, function() {
+                        });
                     });
-                });
 
-                endBattle(result);
-            }
+                    endBattle(result);
+                }
 
-            function endBattle(result) {
-
-                setTimeout(function() {
-                    $('.battle').empty();
-                    if(result === 0) {
-                        $('.battle').append('<h1>DEFAITE !</h1>');
-                    } else if(result === 1) {
-                        $('.battle').append('<h1>VICTOIRE !</h1>');
-                        score++;
-                    } else if(result === 2) {
-                        $('.battle').append('<h1>MATCH NUL !</h1>');
-                    }
+                function endBattle(result) {
 
                     setTimeout(function() {
-                        playing = false;
                         $('.battle').empty();
-                        $('.battle').css('z-index', '-1');
-                        $('.janken').empty();
-                        $('.score').text(score);
-                        domicile = '';
-                        exterieur = '';
-                        deja_joue = 0;
-                    }, 1000);
-                }, 1500);
-            }
+                        if(result === 0) {
+                            $('.battle').append('<h1>DEFAITE !</h1>');
+                        } else if(result === 1) {
+                            $('.battle').append('<h1>VICTOIRE !</h1>');
+                            score++;
+                        } else if(result === 2) {
+                            $('.battle').append('<h1>MATCH NUL !</h1>');
+                        }
+
+                        setTimeout(function() {
+                            playing = false;
+                            $('.battle').empty();
+                            $('.battle').css('z-index', '-1');
+                            $('.janken').empty();
+                            $('.score').text(score);
+                            domicile = '';
+                            exterieur = '';
+                            deja_joue = 0;
+                        }, 1000);
+                    }, 1500);
+                }
+            });
 
         </script>
         
