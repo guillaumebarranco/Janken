@@ -20,7 +20,7 @@ Array.prototype.unset = function(val){
     }
 }
 
-// Variables gloables
+// Variables globales
 
 var rooms = new Array();
 var usernames = new Array();
@@ -53,15 +53,19 @@ app.use(function (req, res, next) {
 
 app.get('/', function(req, res) {
     res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+
     sess.username;
     sess.room;
+    sess.is_home;
 
     if(sess.room != undefined) {
         rooms[sess.room].unset(sess.username);
         sess.room = undefined;
     }
 
-    if(sess.username) {
+    sess.is_home = 1;
+
+    if(sess.username && sess.username != 'inconnu') {
         res.render('../template/home.ejs', {user: sess, rooms: rooms, usernames: usernames});
     } else {
         var no_connect = {};
@@ -88,7 +92,7 @@ app.post('/login', function(req,res){
 
 app.post('/quitGame', function(req,res){
     usernames.unset(sess.username);
-    req.session = null;
+    sess.username = 'inconnu';
     res.end('done');
 });
 
@@ -157,6 +161,7 @@ io.sockets.on('connection', function (socket) {
         socket.emit('newUserEmit', {user: sess});
         socket.join('room'+sess.room);
         socket.broadcast.to('room'+sess.room).emit('newUserBroadcast', {user: sess});
+        sess.is_home = 0;
     });
 
     socket.on('I_changeColor', function (infos) {
@@ -166,6 +171,17 @@ io.sockets.on('connection', function (socket) {
     // Lorsque le pierre feuille ciseaux démarre
     socket.on('I_janken', function (janken) {
         socket.broadcast.to('room'+janken.room_id).emit('janken', {janken: janken.play});
+    });
+
+    // Si l'utilisateur quitte la page en la fermant purement et simplement
+    socket.on('disconnect', function () { 
+        if(sess.room != undefined && sess.is_home == 0) {
+            console.log(sess.username);
+            socket.leave('room'+sess.room);
+            socket.broadcast.to('room'+sess.room).emit('userLeft', {username: sess.username});
+            socket.broadcast.emit('infoLeftRoom', {room_id : sess.room});
+            socket.broadcast.emit('userLeaveGame', {username : sess.username});
+        }
     });
 
 });
