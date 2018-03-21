@@ -2,6 +2,7 @@ var express = require('express');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var app = express();
+const port = 2020;
 
 // Fonction pour vérifier qu'un utilisateur est loggé pour le rediriger
 function requireLogin (req, res, next) {
@@ -121,7 +122,7 @@ app.use(function(req, res, next) {
 
 // Démarrage du serveur
 
-var server = app.listen(8080);
+var server = app.listen(port);
 
 /*
 *   SOCKET IO
