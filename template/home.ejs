@@ -88,11 +88,14 @@
 
 		<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
-        <script src="/connect_io.js"></script>
+		<script src="/connect_io.js"></script>
 
 		<script>
 
 			$(document).ready(function() {
+
+				var socket = io.connect(app_url);
+
 				var my_username = $('.welcome').text();
 
 				$('.all_users').find('ul').hide();
